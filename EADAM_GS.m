@@ -23,22 +23,16 @@ student_interrupting_before = zeros(1,nstudent);
 step  = 1;
 
 %% GS Steps
+studentsNoAssign = 1:nstudent;
+
 while stillCanPropse
-    stillCanPropse = false;
+    studentsNoAssignRec = [];
+
     school_rejects_this_step = cell(1,nschool);
     school_reject_this_step = zeros(1,nschool); % indicator array
     count = 1;
     
-    students_can_propose = [];
-    for student = 1:nstudent
-        %% Already have a school assigned
-        if studentCurAssign(student)>0
-            continue;
-        end    
-        students_can_propose = [students_can_propose, student];
-    end
-    
-    for student = students_can_propose
+    for student = studentsNoAssign
         %% No school yet, need to propose
         hisList = studentList(student, :);
         while studentLastPropInd(student) < nschool && hisList(studentLastPropInd(student)+1)==0
@@ -51,7 +45,6 @@ while stillCanPropse
         end
         
         %% can still propose
-        stillCanPropse = true;
         studentLastPropInd(student) = studentLastPropInd(student)+1;
         school_toProp = hisList(studentLastPropInd(student));
         herRank = schoolRank(school_toProp, :);
@@ -79,11 +72,13 @@ while stillCanPropse
             school_reject_this_step(school_toProp) = 1;
             school_rejects_this_step{school_toProp} = [...
                 school_rejects_this_step{school_toProp}, herLast];
-            
-        else % school reject the new one
+            studentsNoAssignRec = [studentsNoAssignRec herLast];
+        else 
+            % school reject the new one
             school_reject_this_step(school_toProp) = 1;
             school_rejects_this_step{school_toProp} = [...
                 school_rejects_this_step{school_toProp}, student];
+            studentsNoAssignRec = [studentsNoAssignRec student];
         end
     end
     
@@ -112,6 +107,8 @@ while stillCanPropse
     end
     
     step = step + 1;
+    studentsNoAssign = studentsNoAssignRec;
+    stillCanPropse = (length(studentsNoAssign) > 0);
 end
 
 %% OUTPUT

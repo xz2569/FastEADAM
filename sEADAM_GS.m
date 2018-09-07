@@ -23,14 +23,11 @@ school_nproposals = zeros(1, nschool);
 school_proposed_by = zeros(nschool, nstudent);
 
 %% GS Steps
+studentsNoAssign = 1:nstudent;
 while stillCanPropse
-    stillCanPropse = false;
+    studentsNoAssignRec = [];
     
-    for student = 1:nstudent
-        %% Already have a school assigned
-        if studentCurAssign(student)>0
-            continue;
-        end
+    for student = studentsNoAssign
         
         %% No school yet, need to propose
         hisList = studentList(student, :);
@@ -68,14 +65,22 @@ while stillCanPropse
             end
             schoolCurAssign_last(school_toProp) = last;
             studentCurAssign(student) = school_toProp;
+            studentsNoAssignRec = [studentsNoAssignRec herLast];
+        else
+            % school rejects the proposing student
+            studentsNoAssignRec = [studentsNoAssignRec student];
         end
         
         %% sEADAM
         school_proposed_by(school_toProp, student) = 1;
         school_nproposals(school_toProp) = school_nproposals(school_toProp) + 1;
     end
+
+    studentsNoAssign = studentsNoAssignRec;
+    stillCanPropse = (length(studentsNoAssign) > 0);
 end
 
+%% OUTPUT
 StuOSA_student = studentCurAssign;
 StuOSA_school_bool = schoolCurAssign_bool;
 StuOSA_school_last = schoolCurAssign_last;
@@ -83,9 +88,24 @@ StuOSA_school_last = schoolCurAssign_last;
 %% Underdemanded Schools
 ess_underdemand = [];
 last_tier_num = 1;
+first_tier = 1;
 
 while last_tier_num > 0
     last_tier_num = 0;
+
+    if first_tier  % consider students that are unassigned
+        for student = 1:nstudent
+            if studentCurAssign(student) > 0
+                continue;
+            end
+            school_proposed_by_student = school_proposed_by(:, student)==1;
+            school_nproposals(school_proposed_by_student) = ...
+                school_nproposals(school_proposed_by_student) - 1;
+            school_proposed_by(:, student) = zeros(nschool, 1);
+        end
+        first_tier = 0;
+    end
+
     for school = 1:nschool
         if school_nproposals(school) > qs(school) || ismember(school,ess_underdemand)
             continue;

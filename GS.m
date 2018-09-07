@@ -17,14 +17,11 @@ schoolCurAssign_num = zeros(1, nschool);    % count
 stillCanPropse = true;
 
 %% GS Steps
+studentsNoAssign = 1:nstudent;
 while stillCanPropse
-    stillCanPropse = false;
-    
-    for student = 1:nstudent
-        %% Already have a school assigned
-        if studentCurAssign(student)>0
-            continue;
-        end
+    studentsNoAssignRec = [];
+
+    for student = studentsNoAssign
         
         %% No school yet, need to propose
         hisList = studentList(student, :);
@@ -63,8 +60,14 @@ while stillCanPropse
             end
             schoolCurAssign_last(school_toProp) = last;
             studentCurAssign(student) = school_toProp;
+            studentsNoAssignRec = [studentsNoAssignRec herLast];
+        else
+            % school rejects the proposing student
+            studentsNoAssignRec = [studentsNoAssignRec student];
         end
     end
+    studentsNoAssign = studentsNoAssignRec;
+    stillCanPropse = (length(studentsNoAssign) > 0);
 end
 
 %% OUTPUT

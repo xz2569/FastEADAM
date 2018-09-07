@@ -1,12 +1,6 @@
-%% Quota
+%% Instance Size and Quota
 quota = floor(nstudent/nschool) + 1;
-
-while (1)
-    qs = randi([ceil(quota/2), ceil(quota/2*3)], 1, nschool);
-    if sum(qs) >= nstudent
-        break;   % Ensure number of students >= number of seats
-    end
-end
+qs = randi([ceil(quota/2), ceil(quota/2*3)], 1, nschool);
 
 %% Uncomment below for one-to-one case
 % qs = ones(1, nschool);
