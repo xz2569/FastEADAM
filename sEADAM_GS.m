@@ -88,24 +88,9 @@ StuOSA_school_last = schoolCurAssign_last;
 %% Underdemanded Schools
 ess_underdemand = [];
 last_tier_num = 1;
-first_tier = 1;
 
 while last_tier_num > 0
     last_tier_num = 0;
-
-    if first_tier  % consider students that are unassigned
-        for student = 1:nstudent
-            if studentCurAssign(student) > 0
-                continue;
-            end
-            school_proposed_by_student = school_proposed_by(:, student)==1;
-            school_nproposals(school_proposed_by_student) = ...
-                school_nproposals(school_proposed_by_student) - 1;
-            school_proposed_by(:, student) = zeros(nschool, 1);
-        end
-        first_tier = 0;
-    end
-
     for school = 1:nschool
         if school_nproposals(school) > qs(school) || ismember(school,ess_underdemand)
             continue;

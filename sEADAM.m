@@ -13,9 +13,29 @@ while (1)
     [StuOSA_student, ess_underdemand] = sEADAM_GS(nstudent, ...
         nschool, qs, studentList, schoolList, schoolRank);
     
-    % NEED TO CHECK
-    if length(ess_underdemand) == nschool || isempty(ess_underdemand)
+    if length(ess_underdemand) == nschool 
         break;
+    end
+    
+    % When some students are not assigned
+    for student = 1:nstudent
+        if StuOSA_student(student) > 0
+            continue;
+        end
+        % consider consenting behaviors
+        if ~consent(student)
+            for school_preferred = studentList(student, :)
+                if school_preferred == 0
+                    continue;
+                end
+                for student_denied = schoolList(school_preferred, ...
+                            schoolRank(school_preferred, student)+1:end)
+                    studentList(student_denied, studentRank(...
+                        student_denied, school_preferred)) = 0;
+                end
+            end
+        end
+        studentList(student,:) = 0;
     end
     
     % Loop through underdemanded schools and fix assignments & remove edges
