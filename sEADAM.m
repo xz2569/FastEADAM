@@ -53,6 +53,12 @@ while (1)
                     end
                     for student_denied = schoolList(school_preferred, ...
                                 schoolRank(school_preferred, student)+1:end)
+                        if studentRank(student_denied, school_preferred)==0
+                            continue;
+                        end
+                        if studentRank(student_denied, school_preferred) == 0
+                          continue;
+                        end
                         studentList(student_denied, studentRank(...
                             student_denied, school_preferred)) = 0;
                     end
